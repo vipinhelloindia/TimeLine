@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="gplus_color_1">#279e00</color>
+    <color name="gplus_color_2">#0056ed</color>
+    <color name="gplus_color_3">#ea1700</color>
+    <color name="gplus_color_4">#f9d400</color>
+    <color name="holo_blue_dark">#0099cc</color>
+    <color name="holo_yellow_dark">#ff8800</color>
+    <color name="holo_green_dark">#669900</color>
+    <color name="holo_purple_dark">#9933cc</color>
+    <color name="holo_red_dark">#cc0000</color>
+    <color name="single_border_color_light">#cecece</color>
+    <color name="single_border_color_dark">#c3c3c3</color>
+    <color name="text_font_color_meduim">#444444</color>
+    <color name="text_font_color_regular">#555555</color>
+    <color name="text_link_color">#ce5640</color>
+    <color name="selector_bg">#f1f1f1</color>
+
+</resources>
