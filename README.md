@@ -11,7 +11,7 @@ Component used -
 
 3 GSON with  Date JsonDeserializer to handle date format (yyyy-MM-dd'T'HH:mm:ss'Z')
 
-4 Volley is used for image loading and API call using separte reqest queue 
+4 Volley is used for image loading and API call using seperate request queue 
 
 5 GSON Generic Request Using Volley and call back listener to Requesting Activity 
 
