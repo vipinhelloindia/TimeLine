@@ -22,7 +22,7 @@ import android.view.View.MeasureSpec;
  */
 public abstract class BitmapUtils {
 
-	private static String	LOG_TAG	= "BitmapUtils";
+	private static String LOG_TAG = "BitmapUtils";
 
 	/**
 	 * @param pSourceBmp
@@ -30,7 +30,8 @@ public abstract class BitmapUtils {
 	 * @param pNewHeight
 	 * @return scaled bitmap, which is not less than required minimum dimensions
 	 */
-	public static Bitmap getScaledBitmap(Bitmap pSourceBmp, int pNewWidth, int pNewHeight, boolean pIsUniform) {
+	public static Bitmap getScaledBitmap(Bitmap pSourceBmp, int pNewWidth,
+			int pNewHeight, boolean pIsUniform) {
 		if (pSourceBmp == null || pNewWidth <= 0 || pNewHeight <= 0) {
 			return null;
 		}
@@ -67,9 +68,11 @@ public abstract class BitmapUtils {
 		}
 
 		try {
-			return Bitmap.createScaledBitmap(pSourceBmp, scalingToWidth, scalingToHeight, true);
+			return Bitmap.createScaledBitmap(pSourceBmp, scalingToWidth,
+					scalingToHeight, true);
 		} catch (Throwable tr) {
-			Log.e(LOG_TAG, "Error in scaling upto required width and/or height", tr);
+			Log.e(LOG_TAG,
+					"Error in scaling upto required width and/or height", tr);
 			return null;
 		}
 	}
@@ -80,8 +83,10 @@ public abstract class BitmapUtils {
 	 * @param pNewHeight
 	 * @return
 	 */
-	public static Bitmap getScaledCroppedBitmap(Bitmap pSourceBmp, int pNewWidth, int pNewHeight) {
-		Bitmap uniScaledBitmap = getScaledBitmap(pSourceBmp, pNewWidth, pNewHeight, true);
+	public static Bitmap getScaledCroppedBitmap(Bitmap pSourceBmp,
+			int pNewWidth, int pNewHeight) {
+		Bitmap uniScaledBitmap = getScaledBitmap(pSourceBmp, pNewWidth,
+				pNewHeight, true);
 		if (uniScaledBitmap == null) {
 			return null;
 		}
@@ -95,7 +100,8 @@ public abstract class BitmapUtils {
 		if (currentWidth > pNewWidth) {
 			cropDiff = currentWidth - pNewWidth;
 			try {
-				return Bitmap.createBitmap(uniScaledBitmap, cropDiff / 2, 0, currentWidth - cropDiff, currentHeight);
+				return Bitmap.createBitmap(uniScaledBitmap, cropDiff / 2, 0,
+						currentWidth - cropDiff, currentHeight);
 			} catch (Throwable tr) {
 				Log.e(LOG_TAG, "Error in horizontal cropping", tr);
 				return null;
@@ -108,7 +114,8 @@ public abstract class BitmapUtils {
 		if (currentHeight > pNewHeight) {
 			cropDiff = currentHeight - pNewHeight;
 			try {
-				return Bitmap.createBitmap(uniScaledBitmap, 0, cropDiff / 2, currentWidth, currentHeight - cropDiff);
+				return Bitmap.createBitmap(uniScaledBitmap, 0, cropDiff / 2,
+						currentWidth, currentHeight - cropDiff);
 			} catch (Throwable tr) {
 				Log.e(LOG_TAG, "Error in horizontal cropping", tr);
 				return null;
@@ -123,7 +130,8 @@ public abstract class BitmapUtils {
 	 * @param radiusX
 	 * @return
 	 */
-	public static Bitmap getRoundedCornerBitmap(Bitmap pSourceBmp, int radiusX, int radiusY) {
+	public static Bitmap getRoundedCornerBitmap(Bitmap pSourceBmp, int radiusX,
+			int radiusY) {
 		if (pSourceBmp == null || radiusX <= 0 || radiusY <= 0) {
 			return pSourceBmp;
 		}
@@ -131,13 +139,15 @@ public abstract class BitmapUtils {
 
 		try {
 
-			outputBmp = Bitmap.createBitmap(pSourceBmp.getWidth(), pSourceBmp.getHeight(), Config.ARGB_8888);
+			outputBmp = Bitmap.createBitmap(pSourceBmp.getWidth(),
+					pSourceBmp.getHeight(), Config.ARGB_8888);
 
 			Canvas canvas = new Canvas(outputBmp);
 
 			int color = 0xffffffff;
 			Paint paint = new Paint();
-			Rect rect = new Rect(0, 0, pSourceBmp.getWidth(), pSourceBmp.getHeight());
+			Rect rect = new Rect(0, 0, pSourceBmp.getWidth(),
+					pSourceBmp.getHeight());
 			RectF rectF = new RectF(rect);
 			float roundPx = radiusX;
 
@@ -168,13 +178,15 @@ public abstract class BitmapUtils {
 
 		try {
 
-			outputBmp = Bitmap.createBitmap(pSourceBmp.getWidth(), pSourceBmp.getHeight(), Config.ARGB_8888);
+			outputBmp = Bitmap.createBitmap(pSourceBmp.getWidth(),
+					pSourceBmp.getHeight(), Config.ARGB_8888);
 
 			Canvas canvas = new Canvas(outputBmp);
 
 			int color = 0xffffffff;
 			Paint paint = new Paint();
-			Rect rect = new Rect(0, 0, pSourceBmp.getWidth(), pSourceBmp.getHeight());
+			Rect rect = new Rect(0, 0, pSourceBmp.getWidth(),
+					pSourceBmp.getHeight());
 			paint.setAntiAlias(true);
 			canvas.drawARGB(0, 0, 0, 0);
 			paint.setColor(color);
@@ -195,8 +207,10 @@ public abstract class BitmapUtils {
 	 * @return
 	 */
 	public static Bitmap getBitmapFromView(View pView, int pWidth, int pHeight) {
-		int widthMeasureSpec = MeasureSpec.makeMeasureSpec(pWidth, MeasureSpec.EXACTLY);
-		int heightMeasureSpec = MeasureSpec.makeMeasureSpec(pHeight, MeasureSpec.EXACTLY);
+		int widthMeasureSpec = MeasureSpec.makeMeasureSpec(pWidth,
+				MeasureSpec.EXACTLY);
+		int heightMeasureSpec = MeasureSpec.makeMeasureSpec(pHeight,
+				MeasureSpec.EXACTLY);
 
 		pView.measure(widthMeasureSpec, heightMeasureSpec);
 		pView.layout(0, 0, pView.getMeasuredWidth(), pView.getMeasuredHeight());
@@ -211,7 +225,8 @@ public abstract class BitmapUtils {
 	}
 
 	public static Bitmap getCroppedBitmap(Bitmap bitmap, int margin) {
-		int rad = bitmap.getWidth() <= bitmap.getHeight() ? bitmap.getWidth() : bitmap.getHeight();
+		int rad = bitmap.getWidth() <= bitmap.getHeight() ? bitmap.getWidth()
+				: bitmap.getHeight();
 		Bitmap output = Bitmap.createBitmap(rad, rad, Config.ARGB_8888);
 		Canvas canvas = new Canvas(output);
 
@@ -254,7 +269,8 @@ public abstract class BitmapUtils {
 	 * @param pSourceBmp
 	 * @return resized imageBitmap
 	 */
-	public static Bitmap resizeToFitInside(Bitmap pSourceBmp, int pMaxWidth, int pMaxHeight) {
+	public static Bitmap resizeToFitInside(Bitmap pSourceBmp, int pMaxWidth,
+			int pMaxHeight) {
 		int imageWidth = pSourceBmp.getWidth();
 		int imageHeight = pSourceBmp.getHeight();
 		if (imageWidth < pMaxWidth && imageHeight < pMaxHeight) {
@@ -268,9 +284,11 @@ public abstract class BitmapUtils {
 			pMaxHeight = (int) (imageHeight * widthRatio);
 		}
 		try {
-			return Bitmap.createScaledBitmap(pSourceBmp, pMaxWidth, pMaxHeight, true);
+			return Bitmap.createScaledBitmap(pSourceBmp, pMaxWidth, pMaxHeight,
+					true);
 		} catch (Throwable tr) {
-			Log.e(LOG_TAG, "Error in scaling upto required width and/or height", tr);
+			Log.e(LOG_TAG,
+					"Error in scaling upto required width and/or height", tr);
 			return null;
 		}
 	}
@@ -280,9 +298,12 @@ public abstract class BitmapUtils {
 	 * @param diameter
 	 * @return
 	 */
-	public static Bitmap getCircularCenterCropBitmap(Bitmap originalBmp, int diameter) {
-		Bitmap resizedBmp = BitmapUtils.getScaledCroppedBitmap(originalBmp, diameter, diameter);
-		Bitmap circularBmp = BitmapUtils.getRoundedCircularBitmap(resizedBmp, diameter / 2);
+	public static Bitmap getCircularCenterCropBitmap(Bitmap originalBmp,
+			int diameter) {
+		Bitmap resizedBmp = BitmapUtils.getScaledCroppedBitmap(originalBmp,
+				diameter, diameter);
+		Bitmap circularBmp = BitmapUtils.getRoundedCircularBitmap(resizedBmp,
+				diameter / 2);
 		return circularBmp;
 	}
 }

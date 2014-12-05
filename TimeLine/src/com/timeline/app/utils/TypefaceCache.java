@@ -11,10 +11,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 public class TypefaceCache {
-	public static final int											MEDUIM	= 0;
-	public static final int											REGULAR	= 1;
+	public static final int MEDUIM = 0;
+	public static final int REGULAR = 1;
 
-	private static final Hashtable<String, SoftReference<Typeface>>	mTypefaceCache;
+	private static final Hashtable<String, SoftReference<Typeface>> mTypefaceCache;
 
 	static {
 		mTypefaceCache = new Hashtable<String, SoftReference<Typeface>>();
@@ -47,8 +47,10 @@ public class TypefaceCache {
 				}
 			}
 
-			Typeface typeface = Typeface.createFromAsset(context.getAssets(), typefaceName);
-			mTypefaceCache.put(typefaceName, new SoftReference<Typeface>(typeface));
+			Typeface typeface = Typeface.createFromAsset(context.getAssets(),
+					typefaceName);
+			mTypefaceCache.put(typefaceName, new SoftReference<Typeface>(
+					typeface));
 			return typeface;
 
 		}
@@ -59,7 +61,8 @@ public class TypefaceCache {
 	 * sets the typeface for a TextView (or TextView descendant such as EditText
 	 * or Button) based on the passed attributes, defaults to normal typeface
 	 */
-	protected static void setCustomTypeface(Context context, TextView view, int typefacetype) {
+	protected static void setCustomTypeface(Context context, TextView view,
+			int typefacetype) {
 		if (context == null || view == null)
 			return;
 
@@ -78,9 +81,11 @@ public class TypefaceCache {
 	 * @param pFontFileNameInAssets
 	 * @return true if font is applied, false otherwise
 	 */
-	public static boolean changeDeviceTypeface(Context pContext, String pStaticFieldName, int typefacetype) {
+	public static boolean changeDeviceTypeface(Context pContext,
+			String pStaticFieldName, int typefacetype) {
 		try {
-			Field StaticField = Typeface.class.getDeclaredField(pStaticFieldName);
+			Field StaticField = Typeface.class
+					.getDeclaredField(pStaticFieldName);
 			StaticField.setAccessible(true);
 			Typeface newTypeface = getTypeface(pContext, typefacetype);
 			StaticField.set(null, newTypeface);
@@ -96,7 +101,8 @@ public class TypefaceCache {
 	 * @param pFontFileNameInAssets
 	 * @return
 	 */
-	public static boolean setCustomFont(View pView, Context pContext, int typefacetype) {
+	public static boolean setCustomFont(View pView, Context pContext,
+			int typefacetype) {
 
 		try {
 			Typeface tf = getTypeface(pContext, typefacetype);

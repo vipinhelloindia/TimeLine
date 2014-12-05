@@ -16,7 +16,7 @@
 
 package volley.toolbox;
 
-import volley.extras.AuthFailureError;
+import volley.extra.AuthFailureError;
 
 /**
  * An interface for interacting with auth tokens.

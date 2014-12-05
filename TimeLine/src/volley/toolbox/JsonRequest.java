@@ -18,12 +18,12 @@ package volley.toolbox;
 
 import java.io.UnsupportedEncodingException;
 
-import volley.extras.NetworkResponse;
-import volley.extras.Request;
-import volley.extras.Response;
-import volley.extras.VolleyLog;
-import volley.extras.Response.ErrorListener;
-import volley.extras.Response.Listener;
+import volley.extra.NetworkResponse;
+import volley.extra.Request;
+import volley.extra.Response;
+import volley.extra.Response.ErrorListener;
+import volley.extra.Response.Listener;
+import volley.extra.VolleyLog;
 
 /**
  * A request for retrieving a T type response body at a given URL that also
@@ -37,7 +37,8 @@ public abstract class JsonRequest<T> extends Request<T> {
 	private static final String PROTOCOL_CHARSET = "utf-8";
 
 	/** Content type for request. */
-	private static final String PROTOCOL_CONTENT_TYPE = String.format("application/json; charset=%s", PROTOCOL_CHARSET);
+	private static final String PROTOCOL_CONTENT_TYPE = String.format(
+			"application/json; charset=%s", PROTOCOL_CHARSET);
 
 	private final Listener<T> mListener;
 	private final String mRequestBody;
@@ -51,11 +52,14 @@ public abstract class JsonRequest<T> extends Request<T> {
 	 *             {@link #JsonRequest(int, String, String, Listener, ErrorListener)}
 	 *             .
 	 */
-	public JsonRequest(String url, String requestBody, Listener<T> listener, ErrorListener errorListener) {
-		this(Method.DEPRECATED_GET_OR_POST, url, requestBody, listener, errorListener);
+	public JsonRequest(String url, String requestBody, Listener<T> listener,
+			ErrorListener errorListener) {
+		this(Method.DEPRECATED_GET_OR_POST, url, requestBody, listener,
+				errorListener);
 	}
 
-	public JsonRequest(int method, String url, String requestBody, Listener<T> listener, ErrorListener errorListener) {
+	public JsonRequest(int method, String url, String requestBody,
+			Listener<T> listener, ErrorListener errorListener) {
 		super(method, url, errorListener);
 		mListener = listener;
 		mRequestBody = requestBody;
@@ -93,9 +97,12 @@ public abstract class JsonRequest<T> extends Request<T> {
 	@Override
 	public byte[] getBody() {
 		try {
-			return mRequestBody == null ? null : mRequestBody.getBytes(PROTOCOL_CHARSET);
+			return mRequestBody == null ? null : mRequestBody
+					.getBytes(PROTOCOL_CHARSET);
 		} catch (UnsupportedEncodingException uee) {
-			VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", mRequestBody, PROTOCOL_CHARSET);
+			VolleyLog
+					.wtf("Unsupported Encoding while trying to get the bytes of %s using %s",
+							mRequestBody, PROTOCOL_CHARSET);
 			return null;
 		}
 	}

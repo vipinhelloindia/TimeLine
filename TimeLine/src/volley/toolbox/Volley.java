@@ -16,16 +16,15 @@
 
 package volley.toolbox;
 
+import java.io.File;
+
+import volley.extra.Network;
+import volley.extra.RequestQueue;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
-
-import java.io.File;
-
-import volley.extras.Network;
-import volley.extras.RequestQueue;
 
 public class Volley {
 
@@ -44,12 +43,13 @@ public class Volley {
 	 * @return A started {@link RequestQueue} instance.
 	 */
 	public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
-		File cacheDir = new File(context.getExternalCacheDir(), DEFAULT_CACHE_DIR);
+		File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
 
 		String userAgent = "volley/0";
 		try {
 			String packageName = context.getPackageName();
-			PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
+			PackageInfo info = context.getPackageManager().getPackageInfo(
+					packageName, 0);
 			userAgent = packageName + "/" + info.versionCode;
 		} catch (NameNotFoundException e) {
 		}
@@ -61,13 +61,15 @@ public class Volley {
 				// Prior to Gingerbread, HttpUrlConnection was unreliable.
 				// See:
 				// http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-				stack = new HttpClientStack(AndroidHttpClient.newInstance(userAgent));
+				stack = new HttpClientStack(
+						AndroidHttpClient.newInstance(userAgent));
 			}
 		}
 
 		Network network = new BasicNetwork(stack);
 
-		RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir), network);
+		RequestQueue queue = new RequestQueue(new DiskBasedCache(cacheDir),
+				network);
 		queue.start();
 
 		return queue;

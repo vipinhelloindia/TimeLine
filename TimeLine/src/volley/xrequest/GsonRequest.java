@@ -6,12 +6,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import volley.extras.AuthFailureError;
-import volley.extras.NetworkResponse;
-import volley.extras.Request;
-import volley.extras.Response;
-import volley.extras.Response.ErrorListener;
-import volley.extras.Response.Listener;
+import volley.extra.AuthFailureError;
+import volley.extra.NetworkResponse;
+import volley.extra.Request;
+import volley.extra.Response;
+import volley.extra.Response.ErrorListener;
+import volley.extra.Response.Listener;
 import volley.toolbox.HttpHeaderParser;
 
 import com.timeline.app.model.stream.Data;
@@ -19,45 +19,46 @@ import com.timeline.app.model.stream.TimeLine;
 import com.timeline.app.utils.GsonUtil;
 
 public class GsonRequest<T> extends Request<T> {
-	private Class<T>	clazz;
-	private Listener<T>	listener;
-	private Type		typeof;
+	private Class<T> clazz;
+	private Listener<T> listener;
+	private Type typeof;
 
-	public GsonRequest(int method, String url, Class<T> clazz, Listener<T> listener,
-			ErrorListener errorListener) {
+	public GsonRequest(int method, String url, Class<T> clazz,
+			Listener<T> listener, ErrorListener errorListener) {
 		super(method, url, errorListener);
 		this.clazz = clazz;
 		this.listener = listener;
-
+		setShouldCache(Boolean.TRUE);
 	}
 
-	public GsonRequest(int method, String url, Type typeof, Listener<T> listener,
-			ErrorListener errorListener) {
+	public GsonRequest(int method, String url, Type typeof,
+			Listener<T> listener, ErrorListener errorListener) {
 		super(method, url, errorListener);
 		this.typeof = typeof;
 		this.listener = listener;
 	}
 
-	
-
 	@Override
 	protected Response<T> parseNetworkResponse(NetworkResponse response) {
-		T t=null;
+		T t = null;
 		if (clazz != null)
-			t = GsonUtil.mapFromJSONHandleDate(new String(response.data), clazz);
+			t = GsonUtil
+					.mapFromJSONHandleDate(new String(response.data), clazz);
 		if (typeof != null)
-			t = GsonUtil.mapFromJSONHandleDate(new String(response.data), typeof);
-		
-		TimeLine line = (TimeLine)t;
-		List<Data> list =line.getData();
+			t = GsonUtil.mapFromJSONHandleDate(new String(response.data),
+					typeof);
+
+		TimeLine line = (TimeLine) t;
+		List<Data> list = line.getData();
 		Collections.sort(list, new Comparator<Data>() {
 
 			@Override
 			public int compare(Data d1, Data d2) {
-				  return d1.getCreated_at().compareTo(d2.getCreated_at());
+				return d1.getCreated_at().compareTo(d2.getCreated_at());
 			}
 		});
-		return Response.success(t, HttpHeaderParser.parseCacheHeaders(response));
+		return Response
+				.success(t, HttpHeaderParser.parseCacheHeaders(response));
 	}
 
 	@Override

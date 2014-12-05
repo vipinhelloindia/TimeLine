@@ -15,9 +15,7 @@
  */
 package volley.toolbox;
 
-import com.timeline.app.R;
-
-import volley.extras.VolleyError;
+import volley.extra.VolleyError;
 import volley.toolbox.ImageLoader.ImageContainer;
 import volley.toolbox.ImageLoader.ImageListener;
 import android.content.Context;
@@ -32,24 +30,24 @@ import android.widget.ImageView;
  */
 public class NetworkImageView extends ImageView {
 	/** The URL of the network image to load */
-	private String			mUrl;
+	private String mUrl;
 
 	/**
 	 * Resource ID of the image to be used as a placeholder until the network
 	 * image is loaded.
 	 */
-	private int				mDefaultImageId	= 0;	// R.drawable.loading_image;
+	private int mDefaultImageId;
 
 	/**
 	 * Resource ID of the image to be used if the network response fails.
 	 */
-	private int				mErrorImageId	=  0;	// R.drawable.no_image;
+	private int mErrorImageId;
 
 	/** Local copy of the ImageLoader. */
-	private ImageLoader		mImageLoader;
+	private ImageLoader mImageLoader;
 
 	/** Current ImageContainer. (either in-flight or finished) */
-	private ImageContainer	mImageContainer;
+	private ImageContainer mImageContainer;
 
 	public NetworkImageView(Context context) {
 		this(context, null);
@@ -68,6 +66,7 @@ public class NetworkImageView extends ImageView {
 	 * calling this will immediately either set the cached image (if available)
 	 * or the default image specified by
 	 * {@link NetworkImageView#setDefaultImageResId(int)} on the view.
+	 * 
 	 * NOTE: If applicable, {@link NetworkImageView#setDefaultImageResId(int)}
 	 * and {@link NetworkImageView#setErrorImageResId(int)} should be called
 	 * prior to calling this function.
@@ -106,15 +105,20 @@ public class NetworkImageView extends ImageView {
 	 * @param isInLayoutPass
 	 *            True if this was invoked from a layout pass, false otherwise.
 	 */
-	private void loadImageIfNecessary(final boolean isInLayoutPass) {
+	void loadImageIfNecessary(final boolean isInLayoutPass) {
 		int width = getWidth();
 		int height = getHeight();
 
-		boolean isFullyWrapContent = getLayoutParams() != null && getLayoutParams().height == LayoutParams.WRAP_CONTENT
-				&& getLayoutParams().width == LayoutParams.WRAP_CONTENT;
+		boolean wrapWidth = false, wrapHeight = false;
+		if (getLayoutParams() != null) {
+			wrapWidth = getLayoutParams().width == LayoutParams.WRAP_CONTENT;
+			wrapHeight = getLayoutParams().height == LayoutParams.WRAP_CONTENT;
+		}
+
 		// if the view's bounds aren't known yet, and this is not a
 		// wrap-content/wrap-content
 		// view, hold off on loading the image.
+		boolean isFullyWrapContent = wrapWidth && wrapHeight;
 		if (width == 0 && height == 0 && !isFullyWrapContent) {
 			return;
 		}
@@ -145,51 +149,50 @@ public class NetworkImageView extends ImageView {
 			}
 		}
 
+		// Calculate the max image width / height to use while ignoring
+		// WRAP_CONTENT dimens.
+		int maxWidth = wrapWidth ? 0 : width;
+		int maxHeight = wrapHeight ? 0 : height;
+
 		// The pre-existing content of this view didn't match the current URL.
 		// Load the new image
 		// from the network.
-		ImageContainer newContainer = mImageLoader.get(mUrl, new ImageListener() {
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				if (mErrorImageId != 0) {
-					try {
-						setImageResource(mErrorImageId);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
-			@Override
-			public void onResponse(final ImageContainer response, boolean isImmediate) {
-				// If this was an immediate response that was delivered inside
-				// of a layout
-				// pass do not set the image immediately as it will trigger a
-				// requestLayout
-				// inside of a layout. Instead, defer setting the image by
-				// posting back to
-				// the main thread.
-				if (isImmediate && isInLayoutPass) {
-					post(new Runnable() {
-						@Override
-						public void run() {
-							onResponse(response, false);
+		ImageContainer newContainer = mImageLoader.get(mUrl,
+				new ImageListener() {
+					@Override
+					public void onErrorResponse(VolleyError error) {
+						if (mErrorImageId != 0) {
+							setImageResource(mErrorImageId);
 						}
-					});
-					return;
-				}
-
-				if (response.getBitmap() != null) {
-					setImageBitmap(response.getBitmap());
-				} else if (mDefaultImageId != 0) {
-					try {
-						setImageResource(mDefaultImageId);
-					} catch (Exception e) {
-						e.printStackTrace();
 					}
-				}
-			}
-		});
+
+					@Override
+					public void onResponse(final ImageContainer response,
+							boolean isImmediate) {
+						// If this was an immediate response that was delivered
+						// inside of a layout
+						// pass do not set the image immediately as it will
+						// trigger a requestLayout
+						// inside of a layout. Instead, defer setting the image
+						// by posting back to
+						// the main thread.
+						if (isImmediate && isInLayoutPass) {
+							post(new Runnable() {
+								@Override
+								public void run() {
+									onResponse(response, false);
+								}
+							});
+							return;
+						}
+
+						if (response.getBitmap() != null) {
+							setImageBitmap(response.getBitmap());
+						} else if (mDefaultImageId != 0) {
+							setImageResource(mDefaultImageId);
+						}
+					}
+				}, maxWidth, maxHeight);
 
 		// update the ImageContainer to be the new bitmap container.
 		mImageContainer = newContainer;
@@ -204,7 +207,8 @@ public class NetworkImageView extends ImageView {
 	}
 
 	@Override
-	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+	protected void onLayout(boolean changed, int left, int top, int right,
+			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 		loadImageIfNecessary(true);
 	}

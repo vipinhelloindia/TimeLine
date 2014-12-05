@@ -16,13 +16,13 @@
 
 package volley.toolbox;
 
-import org.apache.http.HttpResponse;
-
-import volley.extras.AuthFailureError;
-import volley.extras.Request;
-
 import java.io.IOException;
 import java.util.Map;
+
+import org.apache.http.HttpResponse;
+
+import volley.extra.AuthFailureError;
+import volley.extra.Request;
 
 /**
  * An HTTP stack abstraction.
@@ -44,6 +44,8 @@ public interface HttpStack {
 	 *            {@link Request#getHeaders()}
 	 * @return the HTTP response
 	 */
-	public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders) throws IOException, AuthFailureError;
+	public HttpResponse performRequest(Request<?> request,
+			Map<String, String> additionalHeaders) throws IOException,
+			AuthFailureError;
 
 }

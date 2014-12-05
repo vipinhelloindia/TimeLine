@@ -17,12 +17,13 @@ import com.timeline.app.R;
 import com.timeline.app.model.stream.Data;
 
 public class CommonAdapter extends ArrayAdapter<Data> {
-	Context		context;
-	int			layout;
-	List<Data>	list;
-	ImageLoader	imageLoader;
+	Context context;
+	int layout;
+	List<Data> list;
+	ImageLoader imageLoader;
 
-	public CommonAdapter(Context context, int resource, ImageLoader imageLoader, List<Data> objects) {
+	public CommonAdapter(Context context, int resource,
+			ImageLoader imageLoader, List<Data> objects) {
 		super(context, resource, objects);
 		this.context = context;
 		this.layout = resource;
@@ -46,17 +47,21 @@ public class CommonAdapter extends ArrayAdapter<Data> {
 		try {
 			ViewHolder holder = null;
 			if (convertView == null) {
-				LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater vi = (LayoutInflater) context
+						.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				convertView = vi.inflate(layout, null);
 				holder = new ViewHolder();
-				holder.userTextView = (TextView) convertView.findViewById(R.id.tv_username);
-				holder.postTextView = (TextView) convertView.findViewById(R.id.tv_post_text);
-				holder.avatarImageView = (NetworkImageView) convertView.findViewById(R.id.im_avatar);
+				holder.userTextView = (TextView) convertView
+						.findViewById(R.id.tv_username);
+				holder.postTextView = (TextView) convertView
+						.findViewById(R.id.tv_post_text);
+				holder.avatarImageView = (NetworkImageView) convertView
+						.findViewById(R.id.im_avatar);
 				convertView.setTag(holder);
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			
+
 			Data timeLineData = getItem(position);
 
 			String url = timeLineData.getUser().getAvatar_image().getUrl();
@@ -78,8 +83,8 @@ public class CommonAdapter extends ArrayAdapter<Data> {
 	}
 
 	private static class ViewHolder {
-		TextView			userTextView;
-		TextView			postTextView;
-		NetworkImageView	avatarImageView;
+		TextView userTextView;
+		TextView postTextView;
+		NetworkImageView avatarImageView;
 	}
 }

@@ -1,9 +1,9 @@
 package com.timeline.app.ui.activities;
 
-import volley.extras.Request.Method;
-import volley.extras.Response.ErrorListener;
-import volley.extras.Response.Listener;
-import volley.extras.VolleyError;
+import volley.extra.Request.Method;
+import volley.extra.Response.ErrorListener;
+import volley.extra.Response.Listener;
+import volley.extra.VolleyError;
 import volley.toolbox.ImageLoader;
 import volley.toolbox.VolleySingleton;
 import volley.xrequest.GsonRequest;
@@ -24,13 +24,14 @@ import com.timeline.app.ui.adapter.CommonAdapter;
 import com.timeline.app.utils.ConnectivityUtils;
 import com.timeline.app.utils.Constants;
 
-public class MainActivity extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener,
-		Listener<TimeLine>, ErrorListener, OnScrollListener {
-	SwipeRefreshLayout		swipeLayout;
-	ListView				streamPostListView;
-	String					STREAM_REQUEST	= "stream";
-	GsonRequest<TimeLine>	gsonRequest;
-	ImageLoader				imageLoader;
+public class MainActivity extends ActionBarActivity implements
+		SwipeRefreshLayout.OnRefreshListener, Listener<TimeLine>,
+		ErrorListener, OnScrollListener {
+	SwipeRefreshLayout swipeLayout;
+	ListView streamPostListView;
+	String STREAM_REQUEST = "stream";
+	GsonRequest<TimeLine> gsonRequest;
+	ImageLoader imageLoader;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +40,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
 		swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
 		swipeLayout.setOnRefreshListener(this);
-		swipeLayout.setColorSchemeResources(R.color.gplus_color_1, R.color.gplus_color_3, R.color.gplus_color_2,
+		swipeLayout.setColorSchemeResources(R.color.gplus_color_1,
+				R.color.gplus_color_3, R.color.gplus_color_2,
 				R.color.gplus_color_4);
 
 		streamPostListView = (ListView) findViewById(R.id.lv_streampost);
@@ -49,8 +51,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 		getSupportActionBar().setIcon(R.drawable.ic_action_bar);
 		getSupportActionBar().setTitle("TimeLine ");
 		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-		getSupportActionBar().setBackgroundDrawable(getResources().getDrawable(R.drawable.actionbar));
-		
+		getSupportActionBar().setBackgroundDrawable(
+				getResources().getDrawable(R.drawable.actionbar));
+		swipeLayout.setEnabled(true);
 		getStreamRequest();
 
 	}
@@ -65,13 +68,18 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 
 	public void getStreamRequest() {
 		if (ConnectivityUtils.isNetworkEnabled(MainActivity.this)) {
-			imageLoader = VolleySingleton.getInstance(getApplicationContext()).getImageLoader();
-			gsonRequest = new GsonRequest<TimeLine>(Method.GET, Constants.REQUEST_URL, TimeLine.class,
-					MainActivity.this, MainActivity.this);
-			VolleySingleton.getInstance(getBaseContext()).addToDataRequestQueue(gsonRequest, STREAM_REQUEST);
+			imageLoader = VolleySingleton.getInstance(getApplicationContext())
+					.getImageLoader();
+			gsonRequest = new GsonRequest<TimeLine>(Method.GET,
+					Constants.REQUEST_URL, TimeLine.class, MainActivity.this,
+					MainActivity.this);
+			VolleySingleton.getInstance(getBaseContext())
+					.addToDataRequestQueue(gsonRequest, STREAM_REQUEST);
 			swipeLayout.setRefreshing(true);
+
 		} else {
-			Toast.makeText(getApplicationContext(), "No Internet", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "No Internet",
+					Toast.LENGTH_SHORT).show();
 			swipeLayout.setRefreshing(false);
 			swipeLayout.setEnabled(true);
 		}
@@ -104,8 +112,9 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 			@Override
 			public void run() {
 				swipeLayout.setRefreshing(false);
-				CommonAdapter adapter = new CommonAdapter(MainActivity.this, R.layout.product_grid_item, imageLoader,
-						timeLine.getData());
+				CommonAdapter adapter = new CommonAdapter(MainActivity.this,
+						R.layout.product_grid_item, imageLoader, timeLine
+								.getData());
 				streamPostListView.setAdapter(adapter);
 				swipeLayout.setEnabled(true);
 			}
@@ -113,7 +122,8 @@ public class MainActivity extends ActionBarActivity implements SwipeRefreshLayou
 	}
 
 	@Override
-	public void onScroll(AbsListView arg0, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	public void onScroll(AbsListView arg0, int firstVisibleItem,
+			int visibleItemCount, int totalItemCount) {
 		if (firstVisibleItem == 0)
 			swipeLayout.setEnabled(true);
 		else

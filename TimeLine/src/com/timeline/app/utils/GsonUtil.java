@@ -17,8 +17,9 @@ import com.google.gson.GsonBuilder;
  * 
  *         This Class is used for mapping json String to T Class or T Type ;
  *         This Class take care of handling the Object and Array problem in Json
- *         This Class also take care of handles the DateDeserializer (yyyy-MM-dd'T'HH:mm:ss'Z')  
- *         
+ *         This Class also take care of handles the DateDeserializer
+ *         (yyyy-MM-dd'T'HH:mm:ss'Z')
+ * 
  * @param <T>
  * 
  */
@@ -76,19 +77,19 @@ public final class GsonUtil {
 		Gson gson = new Gson();
 		return gson.fromJson(jsonString, typeof);
 	}
-	
+
 	/**
 	 * @param jsonString
 	 * @param clazz
 	 * @return
 	 */
-	public static <T> T mapFromJSONHandleDate(String jsonString,  Class<T> clazz) {
+	public static <T> T mapFromJSONHandleDate(String jsonString, Class<T> clazz) {
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Date.class, new DateDeserializer());
 		Gson gson = gsonBuilder.create();
 		return gson.fromJson(jsonString, clazz);
 	}
-	
+
 	/**
 	 * @param jsonString
 	 * @param typeof
@@ -100,7 +101,6 @@ public final class GsonUtil {
 		Gson gson = gsonBuilder.create();
 		return gson.fromJson(jsonString, typeof);
 	}
-	
 
 	public static void writeStringToFile(Context context, String name,
 			String jsonString) {

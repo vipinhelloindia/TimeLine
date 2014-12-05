@@ -16,7 +16,15 @@
 
 package volley.toolbox;
 
-import android.os.SystemClock;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -26,26 +34,20 @@ import org.apache.http.StatusLine;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.cookie.DateUtils;
 
-import volley.extras.AuthFailureError;
-import volley.extras.Cache;
-import volley.extras.Network;
-import volley.extras.NetworkError;
-import volley.extras.NetworkResponse;
-import volley.extras.NoConnectionError;
-import volley.extras.Request;
-import volley.extras.RetryPolicy;
-import volley.extras.ServerError;
-import volley.extras.TimeoutError;
-import volley.extras.VolleyError;
-import volley.extras.VolleyLog;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import volley.extra.AuthFailureError;
+import volley.extra.Cache;
+import volley.extra.Cache.Entry;
+import volley.extra.Network;
+import volley.extra.NetworkError;
+import volley.extra.NetworkResponse;
+import volley.extra.NoConnectionError;
+import volley.extra.Request;
+import volley.extra.RetryPolicy;
+import volley.extra.ServerError;
+import volley.extra.TimeoutError;
+import volley.extra.VolleyError;
+import volley.extra.VolleyLog;
+import android.os.SystemClock;
 
 /**
  * A network performing Volley requests over an {@link HttpStack}.
@@ -84,12 +86,13 @@ public class BasicNetwork implements Network {
 	}
 
 	@Override
-	public NetworkResponse performRequest(Request<?> request) throws VolleyError {
+	public NetworkResponse performRequest(Request<?> request)
+			throws VolleyError {
 		long requestStart = SystemClock.elapsedRealtime();
 		while (true) {
 			HttpResponse httpResponse = null;
 			byte[] responseContents = null;
-			Map<String, String> responseHeaders = new HashMap<String, String>();
+			Map<String, String> responseHeaders = Collections.emptyMap();
 			try {
 				// Gather headers.
 				Map<String, String> headers = new HashMap<String, String>();
@@ -101,7 +104,22 @@ public class BasicNetwork implements Network {
 				responseHeaders = convertHeaders(httpResponse.getAllHeaders());
 				// Handle cache validation.
 				if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
-					return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED, request.getCacheEntry().data, responseHeaders, true);
+
+					Entry entry = request.getCacheEntry();
+					if (entry == null) {
+						return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED,
+								null, responseHeaders, true,
+								SystemClock.elapsedRealtime() - requestStart);
+					}
+
+					// A HTTP 304 response does not have all header fields. We
+					// have to use the header fields from the cache entry plus
+					// the new ones from the response.
+					// http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.5
+					entry.responseHeaders.putAll(responseHeaders);
+					return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED,
+							entry.data, entry.responseHeaders, true,
+							SystemClock.elapsedRealtime() - requestStart);
 				}
 
 				// Some responses such as 204s do not have content. We must
@@ -115,17 +133,23 @@ public class BasicNetwork implements Network {
 				}
 
 				// if the request is slow, log it.
-				long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
-				logSlowRequests(requestLifetime, request, responseContents, statusLine);
+				long requestLifetime = SystemClock.elapsedRealtime()
+						- requestStart;
+				logSlowRequests(requestLifetime, request, responseContents,
+						statusLine);
 
 				if (statusCode < 200 || statusCode > 299) {
 					throw new IOException();
 				}
-				return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
+				return new NetworkResponse(statusCode, responseContents,
+						responseHeaders, false, SystemClock.elapsedRealtime()
+								- requestStart);
 			} catch (SocketTimeoutException e) {
-				attemptRetryOnException("socket", request, new TimeoutError());
+				attemptRetryOnException("socket", request, new TimeoutError("",
+						e));
 			} catch (ConnectTimeoutException e) {
-				attemptRetryOnException("connection", request, new TimeoutError());
+				attemptRetryOnException("connection", request,
+						new TimeoutError("", e));
 			} catch (MalformedURLException e) {
 				throw new RuntimeException("Bad URL " + request.getUrl(), e);
 			} catch (Exception e) {
@@ -136,15 +160,25 @@ public class BasicNetwork implements Network {
 				} else {
 					throw new NoConnectionError(e);
 				}
-				VolleyLog.e("Unexpected response code %d for %s", statusCode, request.getUrl());
+				VolleyLog.e("Unexpected response code %d for %s", statusCode,
+						request.getUrl());
 				if (responseContents != null) {
-					networkResponse = new NetworkResponse(statusCode, responseContents, responseHeaders, false);
-					if (statusCode == HttpStatus.SC_UNAUTHORIZED || statusCode == HttpStatus.SC_FORBIDDEN) {
-						attemptRetryOnException("auth", request, new AuthFailureError(networkResponse));
+					networkResponse = new NetworkResponse(statusCode,
+							responseContents, responseHeaders, false,
+							SystemClock.elapsedRealtime() - requestStart);
+					if (statusCode == HttpStatus.SC_UNAUTHORIZED
+							|| statusCode == HttpStatus.SC_FORBIDDEN) {
+						attemptRetryOnException("auth", request,
+								new AuthFailureError(networkResponse));
 					} else {
 						// TODO: Only throw ServerError for 5xx status codes.
 						throw new ServerError(networkResponse);
 					}
+				}
+				// TODO: Return Image from cache
+				else if (request instanceof ImageRequest) {
+					return new NetworkResponse(HttpStatus.SC_NOT_MODIFIED,
+							request.getCacheEntry().data, responseHeaders, true);
 				} else {
 					throw new NetworkError(networkResponse);
 				}
@@ -155,11 +189,16 @@ public class BasicNetwork implements Network {
 	/**
 	 * Logs requests that took over SLOW_REQUEST_THRESHOLD_MS to complete.
 	 */
-	private void logSlowRequests(long requestLifetime, Request<?> request, byte[] responseContents, StatusLine statusLine) {
+	private void logSlowRequests(long requestLifetime, Request<?> request,
+			byte[] responseContents, StatusLine statusLine) {
 		if (DEBUG || requestLifetime > SLOW_REQUEST_THRESHOLD_MS) {
-			VolleyLog.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " + "[rc=%d], [retryCount=%s]", request, requestLifetime,
-					responseContents != null ? responseContents.length : "null", statusLine.getStatusCode(), request.getRetryPolicy()
-							.getCurrentRetryCount());
+			VolleyLog
+					.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], "
+							+ "[rc=%d], [retryCount=%s]", request,
+							requestLifetime,
+							responseContents != null ? responseContents.length
+									: "null", statusLine.getStatusCode(),
+							request.getRetryPolicy().getCurrentRetryCount());
 		}
 	}
 
@@ -171,17 +210,20 @@ public class BasicNetwork implements Network {
 	 * @param request
 	 *            The request to use.
 	 */
-	private static void attemptRetryOnException(String logPrefix, Request<?> request, VolleyError exception) throws VolleyError {
+	private static void attemptRetryOnException(String logPrefix,
+			Request<?> request, VolleyError exception) throws VolleyError {
 		RetryPolicy retryPolicy = request.getRetryPolicy();
 		int oldTimeout = request.getTimeoutMs();
 
 		try {
 			retryPolicy.retry(exception);
 		} catch (VolleyError e) {
-			request.addMarker(String.format("%s-timeout-giveup [timeout=%s]", logPrefix, oldTimeout));
+			request.addMarker(String.format("%s-timeout-giveup [timeout=%s]",
+					logPrefix, oldTimeout));
 			throw e;
 		}
-		request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix, oldTimeout));
+		request.addMarker(String.format("%s-retry [timeout=%s]", logPrefix,
+				oldTimeout));
 	}
 
 	private void addCacheHeaders(Map<String, String> headers, Cache.Entry entry) {
@@ -202,12 +244,15 @@ public class BasicNetwork implements Network {
 
 	protected void logError(String what, String url, long start) {
 		long now = SystemClock.elapsedRealtime();
-		VolleyLog.v("HTTP ERROR(%s) %d ms to fetch %s", what, (now - start), url);
+		VolleyLog.v("HTTP ERROR(%s) %d ms to fetch %s", what, (now - start),
+				url);
 	}
 
 	/** Reads the contents of HttpEntity into a byte[]. */
-	private byte[] entityToBytes(HttpEntity entity) throws IOException, ServerError {
-		PoolingByteArrayOutputStream bytes = new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
+	private byte[] entityToBytes(HttpEntity entity) throws IOException,
+			ServerError {
+		PoolingByteArrayOutputStream bytes = new PoolingByteArrayOutputStream(
+				mPool, (int) entity.getContentLength());
 		byte[] buffer = null;
 		try {
 			InputStream in = entity.getContent();
@@ -239,8 +284,9 @@ public class BasicNetwork implements Network {
 	/**
 	 * Converts Headers[] to Map<String, String>.
 	 */
-	private static Map<String, String> convertHeaders(Header[] headers) {
-		Map<String, String> result = new HashMap<String, String>();
+	protected static Map<String, String> convertHeaders(Header[] headers) {
+		Map<String, String> result = new TreeMap<String, String>(
+				String.CASE_INSENSITIVE_ORDER);
 		for (int i = 0; i < headers.length; i++) {
 			result.put(headers[i].getName(), headers[i].getValue());
 		}

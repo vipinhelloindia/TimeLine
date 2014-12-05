@@ -12,7 +12,7 @@ import android.util.Log;
  */
 public class ConnectivityUtils {
 
-	private static final String	LOG_TAG	= "ConnectivityUtils";
+	private static final String LOG_TAG = "ConnectivityUtils";
 
 	/**
 	 * @note android.permission.ACCESS_NETWORK_STATE is required
@@ -38,9 +38,13 @@ public class ConnectivityUtils {
 			return;
 		}
 		Log.i(LOG_TAG, "Active Network. Type: " + activeNetwork.getTypeName());
-		Log.i(LOG_TAG, "Active Network. isConnected: " + activeNetwork.isConnected());
-		Log.i(LOG_TAG, "Active Network. isConnectedOrConnecting: " + activeNetwork.isConnectedOrConnecting());
-		Log.i(LOG_TAG, "Active Network. N/W State Reason: " + activeNetwork.getReason());
+		Log.i(LOG_TAG,
+				"Active Network. isConnected: " + activeNetwork.isConnected());
+		Log.i(LOG_TAG, "Active Network. isConnectedOrConnecting: "
+				+ activeNetwork.isConnectedOrConnecting());
+		Log.i(LOG_TAG,
+				"Active Network. N/W State Reason: "
+						+ activeNetwork.getReason());
 	}
 
 	/**
@@ -50,7 +54,8 @@ public class ConnectivityUtils {
 	 * @return
 	 */
 	public static NetworkInfo getActiveNetwork(Context pContext) {
-		ConnectivityManager conMngr = (ConnectivityManager) pContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager conMngr = (ConnectivityManager) pContext
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		return conMngr == null ? null : conMngr.getActiveNetworkInfo();
 	}
 
@@ -68,8 +73,10 @@ public class ConnectivityUtils {
 	 * @param pRequiredTrailingDigits
 	 * @return
 	 */
-	public static String getMobileNumber(Context pContext, int pRequiredTrailingDigits) {
-		TelephonyManager telephonyMngr = (TelephonyManager) pContext.getSystemService(Context.TELEPHONY_SERVICE);
+	public static String getMobileNumber(Context pContext,
+			int pRequiredTrailingDigits) {
+		TelephonyManager telephonyMngr = (TelephonyManager) pContext
+				.getSystemService(Context.TELEPHONY_SERVICE);
 		String mobileNumber = telephonyMngr.getLine1Number();
 		mobileNumber = mobileNumber == null ? "" : mobileNumber.trim();
 		int mobileNumberLength = mobileNumber.length();
@@ -80,16 +87,17 @@ public class ConnectivityUtils {
 			if (Character.isDigit(mobileNumber.charAt(i))) {
 				continue;
 			}
-			mobileNumber = mobileNumber.replace("" + mobileNumber.charAt(i), "");
+			mobileNumber = mobileNumber
+					.replace("" + mobileNumber.charAt(i), "");
 			mobileNumberLength = mobileNumber.length();
 			i--;
 		}
 		if (mobileNumberLength <= pRequiredTrailingDigits) {
 			return mobileNumber;
 		}
-		return mobileNumber.substring(mobileNumberLength - pRequiredTrailingDigits);
+		return mobileNumber.substring(mobileNumberLength
+				- pRequiredTrailingDigits);
 	}
-
 
 	/**
 	 * @note android.permission.READ_PHONE_STATE is required
@@ -98,7 +106,8 @@ public class ConnectivityUtils {
 	 * @return
 	 */
 	public static String getDeviceId(Context pContext) {
-		TelephonyManager telephonyManager = (TelephonyManager) pContext.getSystemService(Context.TELEPHONY_SERVICE);
+		TelephonyManager telephonyManager = (TelephonyManager) pContext
+				.getSystemService(Context.TELEPHONY_SERVICE);
 		return telephonyManager.getDeviceId();
 	}
 }

@@ -16,16 +16,16 @@
 
 package volley.toolbox;
 
+import java.io.UnsupportedEncodingException;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import volley.extras.NetworkResponse;
-import volley.extras.ParseError;
-import volley.extras.Response;
-import volley.extras.Response.ErrorListener;
-import volley.extras.Response.Listener;
-
-import java.io.UnsupportedEncodingException;
+import volley.extra.NetworkResponse;
+import volley.extra.ParseError;
+import volley.extra.Response;
+import volley.extra.Response.ErrorListener;
+import volley.extra.Response.Listener;
 
 /**
  * A request for retrieving a {@link JSONArray} response body at a given URL.
@@ -42,15 +42,18 @@ public class JsonArrayRequest extends JsonRequest<JSONArray> {
 	 * @param errorListener
 	 *            Error listener, or null to ignore errors.
 	 */
-	public JsonArrayRequest(String url, Listener<JSONArray> listener, ErrorListener errorListener) {
+	public JsonArrayRequest(String url, Listener<JSONArray> listener,
+			ErrorListener errorListener) {
 		super(Method.GET, url, null, listener, errorListener);
 	}
 
 	@Override
 	protected Response<JSONArray> parseNetworkResponse(NetworkResponse response) {
 		try {
-			String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-			return Response.success(new JSONArray(jsonString), HttpHeaderParser.parseCacheHeaders(response));
+			String jsonString = new String(response.data,
+					HttpHeaderParser.parseCharset(response.headers));
+			return Response.success(new JSONArray(jsonString),
+					HttpHeaderParser.parseCacheHeaders(response));
 		} catch (UnsupportedEncodingException e) {
 			return Response.error(new ParseError(e));
 		} catch (JSONException je) {

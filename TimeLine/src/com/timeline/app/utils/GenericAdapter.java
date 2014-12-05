@@ -23,7 +23,8 @@ public class GenericAdapter<T> extends TypeAdapter<List<T>> {
 
 		List<T> list = new ArrayList<T>();
 
-		Gson gson = new GsonBuilder().registerTypeAdapterFactory(new GenericAdapterFactory()).create();
+		Gson gson = new GsonBuilder().registerTypeAdapterFactory(
+				new GenericAdapterFactory()).create();
 
 		if (reader.peek() == JsonToken.BEGIN_OBJECT) {
 			T inning = gson.fromJson(reader, adapterclass);

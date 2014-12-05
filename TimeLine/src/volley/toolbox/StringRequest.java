@@ -18,11 +18,11 @@ package volley.toolbox;
 
 import java.io.UnsupportedEncodingException;
 
-import volley.extras.NetworkResponse;
-import volley.extras.Request;
-import volley.extras.Response;
-import volley.extras.Response.ErrorListener;
-import volley.extras.Response.Listener;
+import volley.extra.NetworkResponse;
+import volley.extra.Request;
+import volley.extra.Response;
+import volley.extra.Response.ErrorListener;
+import volley.extra.Response.Listener;
 
 /**
  * A canned request for retrieving the response body at a given URL as a String.
@@ -42,7 +42,8 @@ public class StringRequest extends Request<String> {
 	 * @param errorListener
 	 *            Error listener, or null to ignore errors
 	 */
-	public StringRequest(int method, String url, Listener<String> listener, ErrorListener errorListener) {
+	public StringRequest(int method, String url, Listener<String> listener,
+			ErrorListener errorListener) {
 		super(method, url, errorListener);
 		mListener = listener;
 	}
@@ -57,7 +58,8 @@ public class StringRequest extends Request<String> {
 	 * @param errorListener
 	 *            Error listener, or null to ignore errors
 	 */
-	public StringRequest(String url, Listener<String> listener, ErrorListener errorListener) {
+	public StringRequest(String url, Listener<String> listener,
+			ErrorListener errorListener) {
 		this(Method.GET, url, listener, errorListener);
 	}
 
@@ -70,10 +72,12 @@ public class StringRequest extends Request<String> {
 	protected Response<String> parseNetworkResponse(NetworkResponse response) {
 		String parsed;
 		try {
-			parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
+			parsed = new String(response.data,
+					HttpHeaderParser.parseCharset(response.headers));
 		} catch (UnsupportedEncodingException e) {
 			parsed = new String(response.data);
 		}
-		return Response.success(parsed, HttpHeaderParser.parseCacheHeaders(response));
+		return Response.success(parsed,
+				HttpHeaderParser.parseCacheHeaders(response));
 	}
 }

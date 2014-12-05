@@ -21,9 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import volley.extras.Request;
-import volley.extras.Response;
-import volley.extras.VolleyError;
+import volley.extra.*;
+import volley.extra.VolleyError;
 
 /**
  * A Future that represents a Volley request.
@@ -53,7 +52,8 @@ import volley.extras.VolleyError;
  * @param <T>
  *            The type of parsed response this future expects.
  */
-public class RequestFuture<T> implements Future<T>, Response.Listener<T>, Response.ErrorListener {
+public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
+		Response.ErrorListener {
 	private Request<?> mRequest;
 	private boolean mResultReceived = false;
 	private T mResult;
@@ -94,11 +94,13 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>, Respon
 	}
 
 	@Override
-	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+	public T get(long timeout, TimeUnit unit) throws InterruptedException,
+			ExecutionException, TimeoutException {
 		return doGet(TimeUnit.MILLISECONDS.convert(timeout, unit));
 	}
 
-	private synchronized T doGet(Long timeoutMs) throws InterruptedException, ExecutionException, TimeoutException {
+	private synchronized T doGet(Long timeoutMs) throws InterruptedException,
+			ExecutionException, TimeoutException {
 		if (mException != null) {
 			throw new ExecutionException(mException);
 		}

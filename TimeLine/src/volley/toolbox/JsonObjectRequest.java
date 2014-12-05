@@ -16,16 +16,16 @@
 
 package volley.toolbox;
 
+import java.io.UnsupportedEncodingException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import volley.extras.NetworkResponse;
-import volley.extras.ParseError;
-import volley.extras.Response;
-import volley.extras.Response.ErrorListener;
-import volley.extras.Response.Listener;
-
-import java.io.UnsupportedEncodingException;
+import volley.extra.NetworkResponse;
+import volley.extra.ParseError;
+import volley.extra.Response;
+import volley.extra.Response.ErrorListener;
+import volley.extra.Response.Listener;
 
 /**
  * A request for retrieving a {@link JSONObject} response body at a given URL,
@@ -49,8 +49,10 @@ public class JsonObjectRequest extends JsonRequest<JSONObject> {
 	 * @param errorListener
 	 *            Error listener, or null to ignore errors.
 	 */
-	public JsonObjectRequest(int method, String url, JSONObject jsonRequest, Listener<JSONObject> listener, ErrorListener errorListener) {
-		super(method, url, (jsonRequest == null) ? null : jsonRequest.toString(), listener, errorListener);
+	public JsonObjectRequest(int method, String url, JSONObject jsonRequest,
+			Listener<JSONObject> listener, ErrorListener errorListener) {
+		super(method, url, (jsonRequest == null) ? null : jsonRequest
+				.toString(), listener, errorListener);
 	}
 
 	/**
@@ -60,15 +62,19 @@ public class JsonObjectRequest extends JsonRequest<JSONObject> {
 	 * 
 	 * @see #JsonObjectRequest(int, String, JSONObject, Listener, ErrorListener)
 	 */
-	public JsonObjectRequest(String url, JSONObject jsonRequest, Listener<JSONObject> listener, ErrorListener errorListener) {
-		this(jsonRequest == null ? Method.GET : Method.POST, url, jsonRequest, listener, errorListener);
+	public JsonObjectRequest(String url, JSONObject jsonRequest,
+			Listener<JSONObject> listener, ErrorListener errorListener) {
+		this(jsonRequest == null ? Method.GET : Method.POST, url, jsonRequest,
+				listener, errorListener);
 	}
 
 	@Override
 	protected Response<JSONObject> parseNetworkResponse(NetworkResponse response) {
 		try {
-			String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers));
-			return Response.success(new JSONObject(jsonString), HttpHeaderParser.parseCacheHeaders(response));
+			String jsonString = new String(response.data,
+					HttpHeaderParser.parseCharset(response.headers));
+			return Response.success(new JSONObject(jsonString),
+					HttpHeaderParser.parseCacheHeaders(response));
 		} catch (UnsupportedEncodingException e) {
 			return Response.error(new ParseError(e));
 		} catch (JSONException je) {

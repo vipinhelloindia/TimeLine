@@ -1,9 +1,10 @@
 package volley.toolbox;
 
-import volley.extras.DefaultRetryPolicy;
-import volley.extras.Request;
-import volley.extras.RequestQueue;
-import volley.extras.VolleyUtils;
+import volley.extra.DefaultRetryPolicy;
+import volley.extra.Request;
+import volley.extra.RequestQueue;
+import volley.extra.RetryPolicy;
+import volley.extra.VolleyUtils;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,12 +16,12 @@ import android.util.Log;
  * Volley objects and Volley Helper objects
  */
 public class VolleySingleton {
-	private static VolleySingleton	mInstance	= null;
-	private RequestQueue			mImageRequestQueue;
-	private ImageLoader				mImageLoader;
-	int								cacheSize, maxMemory;
-	private RequestQueue			mDataRequestQueue;
-	private String					mDefaultRequestTag;
+	private static VolleySingleton mInstance = null;
+	private RequestQueue mImageRequestQueue;
+	private ImageLoader mImageLoader;
+	int cacheSize, maxMemory;
+	private RequestQueue mDataRequestQueue;
+	private String mDefaultRequestTag;
 
 	private VolleySingleton(Context context) {
 
@@ -35,11 +36,14 @@ public class VolleySingleton {
 		maxMemory = (int) (Runtime.getRuntime().maxMemory() / (1024 * 1024));
 		cacheSize = maxMemory / 20;
 		int tempCahce = Math.max(cacheSize, 10);
-		Log.d("vipin", "Max memory =" + maxMemory + "Cache size " + cacheSize + " MB" + " tempCahce =" + tempCahce);
+		Log.d("vipin", "Max memory =" + maxMemory + "Cache size " + cacheSize
+				+ " MB" + " tempCahce =" + tempCahce);
 
-		final LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(tempCahce) {
+		final LruCache<String, Bitmap> mCache = new LruCache<String, Bitmap>(
+				tempCahce) {
 			@Override
-			protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+			protected void entryRemoved(boolean evicted, String key,
+					Bitmap oldValue, Bitmap newValue) {
 				super.entryRemoved(evicted, key, oldValue, newValue);
 				try {
 					// Log.println(Log.ASSERT, "vipin", "entry removed" + key);
@@ -55,17 +59,18 @@ public class VolleySingleton {
 			}
 		};
 
-		mImageLoader = new ImageLoader(this.mImageRequestQueue, new ImageLoader.ImageCache() {
+		mImageLoader = new ImageLoader(this.mImageRequestQueue,
+				new ImageLoader.ImageCache() {
 
-			public void putBitmap(String url, Bitmap bitmap) {
-				mCache.put(url, bitmap);
-			}
+					public void putBitmap(String url, Bitmap bitmap) {
+						mCache.put(url, bitmap);
+					}
 
-			public Bitmap getBitmap(String url) {
-				return mCache.get(url);
-			}
+					public Bitmap getBitmap(String url) {
+						return mCache.get(url);
+					}
 
-		});
+				});
 
 	}
 
@@ -92,10 +97,20 @@ public class VolleySingleton {
 		if (pRequest.getTag() == null) {
 			pRequest.setTag(mDefaultRequestTag);
 		}
-		pRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 30,
-				DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+		pRequest.setRetryPolicy(new DefaultRetryPolicy(
+				DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 30,
+				DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+				DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
 		mDataRequestQueue.add(pRequest);
 	}
+
+	/**
+	 * Adds the specified request to the global queue using the custom TAG.
+	 * 
+	 * @param pRequest
+	 * @throws IllegalStatException
+	 *             if initialize has not yet been called
+	 */
 
 	public <T> void addToDataRequestQueue(Request<T> pRequest, String requestTag) {
 		if (mDataRequestQueue == null) {
@@ -103,8 +118,31 @@ public class VolleySingleton {
 		}
 		pRequest.setTag(requestTag);
 
-		pRequest.setRetryPolicy(new DefaultRetryPolicy(DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 30,
-				DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+		pRequest.setRetryPolicy(new DefaultRetryPolicy(
+				DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 30,
+				DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+				DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+		mDataRequestQueue.add(pRequest);
+	}
+
+	/**
+	 * Adds the specified request to the global queue using the Default TAG.
+	 * 
+	 * @param pRequest
+	 * @param pRetryPolicy
+	 * @throws IllegalStatException
+	 *             if initialize has not yet been called
+	 */
+
+	public <T> void addToDataRequestQueue(Request<T> pRequest,
+			RetryPolicy pRetryPolicy) {
+		if (mDataRequestQueue == null) {
+			throw new IllegalStateException("Not initialized");
+		}
+		pRequest.setTag(mDefaultRequestTag);
+
+		pRequest.setRetryPolicy(pRetryPolicy);
+
 		mDataRequestQueue.add(pRequest);
 	}
 
@@ -117,8 +155,8 @@ public class VolleySingleton {
 	}
 
 	/**
-	 * From KitKat onward use getAllocationByteCount() as allocated bytes
-	 * can potentially be larger than bitmap byte count.
+	 * From KitKat onward use getAllocationByteCount() as allocated bytes can
+	 * potentially be larger than bitmap byte count.
 	 */
 	@TargetApi(VERSION_CODES.KITKAT)
 	public static int getBitmapSize(Bitmap bitmap) {

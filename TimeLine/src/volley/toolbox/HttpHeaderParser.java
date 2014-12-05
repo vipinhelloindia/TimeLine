@@ -16,14 +16,14 @@
 
 package volley.toolbox;
 
+import java.util.Map;
+
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.http.protocol.HTTP;
 
-import volley.extras.Cache;
-import volley.extras.NetworkResponse;
-
-import java.util.Map;
+import volley.extra.Cache;
+import volley.extra.NetworkResponse;
 
 /**
  * Utility methods for parsing HTTP headers.
@@ -70,7 +70,8 @@ public class HttpHeaderParser {
 						maxAge = Long.parseLong(token.substring(8));
 					} catch (Exception e) {
 					}
-				} else if (token.equals("must-revalidate") || token.equals("proxy-revalidate")) {
+				} else if (token.equals("must-revalidate")
+						|| token.equals("proxy-revalidate")) {
 					maxAge = 0;
 				}
 			}

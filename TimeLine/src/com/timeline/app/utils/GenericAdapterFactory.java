@@ -19,7 +19,9 @@ public class GenericAdapterFactory implements TypeAdapterFactory {
 		TypeAdapter<T> typeAdapter = null;
 		try {
 			if (type.getRawType() == List.class)
-				typeAdapter = new GenericAdapter((Class) ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
+				typeAdapter = new GenericAdapter(
+						(Class) ((ParameterizedType) type.getType())
+								.getActualTypeArguments()[0]);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

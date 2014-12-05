@@ -16,6 +16,12 @@
 
 package volley.toolbox;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -34,15 +40,9 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import volley.extras.AuthFailureError;
-import volley.extras.Request;
-import volley.extras.Request.Method;
-
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import volley.extra.AuthFailureError;
+import volley.extra.Request;
+import volley.extra.Request.Method;
 
 /**
  * An HttpStack that performs request over an {@link HttpClient}.
@@ -56,15 +56,18 @@ public class HttpClientStack implements HttpStack {
 		mClient = client;
 	}
 
-	private static void addHeaders(HttpUriRequest httpRequest, Map<String, String> headers) {
+	private static void addHeaders(HttpUriRequest httpRequest,
+			Map<String, String> headers) {
 		for (String key : headers.keySet()) {
 			httpRequest.setHeader(key, headers.get(key));
 		}
 	}
 
 	@SuppressWarnings("unused")
-	private static List<NameValuePair> getPostParameterPairs(Map<String, String> postParams) {
-		List<NameValuePair> result = new ArrayList<NameValuePair>(postParams.size());
+	private static List<NameValuePair> getPostParameterPairs(
+			Map<String, String> postParams) {
+		List<NameValuePair> result = new ArrayList<NameValuePair>(
+				postParams.size());
 		for (String key : postParams.keySet()) {
 			result.add(new BasicNameValuePair(key, postParams.get(key)));
 		}
@@ -72,8 +75,11 @@ public class HttpClientStack implements HttpStack {
 	}
 
 	@Override
-	public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders) throws IOException, AuthFailureError {
-		HttpUriRequest httpRequest = createHttpRequest(request, additionalHeaders);
+	public HttpResponse performRequest(Request<?> request,
+			Map<String, String> additionalHeaders) throws IOException,
+			AuthFailureError {
+		HttpUriRequest httpRequest = createHttpRequest(request,
+				additionalHeaders);
 		addHeaders(httpRequest, additionalHeaders);
 		addHeaders(httpRequest, request.getHeaders());
 		onPrepareRequest(httpRequest);
@@ -90,8 +96,8 @@ public class HttpClientStack implements HttpStack {
 	 * Creates the appropriate subclass of HttpUriRequest for passed in request.
 	 */
 	@SuppressWarnings("deprecation")
-	/* protected */static HttpUriRequest createHttpRequest(Request<?> request, Map<String, String> additionalHeaders)
-			throws AuthFailureError {
+	/* protected */static HttpUriRequest createHttpRequest(Request<?> request,
+			Map<String, String> additionalHeaders) throws AuthFailureError {
 		switch (request.getMethod()) {
 		case Method.DEPRECATED_GET_OR_POST: {
 			// This is the deprecated way that needs to be handled for backwards
@@ -102,7 +108,8 @@ public class HttpClientStack implements HttpStack {
 			byte[] postBody = request.getPostBody();
 			if (postBody != null) {
 				HttpPost postRequest = new HttpPost(request.getUrl());
-				postRequest.addHeader(HEADER_CONTENT_TYPE, request.getPostBodyContentType());
+				postRequest.addHeader(HEADER_CONTENT_TYPE,
+						request.getPostBodyContentType());
 				HttpEntity entity;
 				entity = new ByteArrayEntity(postBody);
 				postRequest.setEntity(entity);
@@ -117,13 +124,15 @@ public class HttpClientStack implements HttpStack {
 			return new HttpDelete(request.getUrl());
 		case Method.POST: {
 			HttpPost postRequest = new HttpPost(request.getUrl());
-			postRequest.addHeader(HEADER_CONTENT_TYPE, request.getBodyContentType());
+			postRequest.addHeader(HEADER_CONTENT_TYPE,
+					request.getBodyContentType());
 			setEntityIfNonEmptyBody(postRequest, request);
 			return postRequest;
 		}
 		case Method.PUT: {
 			HttpPut putRequest = new HttpPut(request.getUrl());
-			putRequest.addHeader(HEADER_CONTENT_TYPE, request.getBodyContentType());
+			putRequest.addHeader(HEADER_CONTENT_TYPE,
+					request.getBodyContentType());
 			setEntityIfNonEmptyBody(putRequest, request);
 			return putRequest;
 		}
@@ -135,7 +144,8 @@ public class HttpClientStack implements HttpStack {
 			return new HttpTrace(request.getUrl());
 		case Method.PATCH: {
 			HttpPatch patchRequest = new HttpPatch(request.getUrl());
-			patchRequest.addHeader(HEADER_CONTENT_TYPE, request.getBodyContentType());
+			patchRequest.addHeader(HEADER_CONTENT_TYPE,
+					request.getBodyContentType());
 			setEntityIfNonEmptyBody(patchRequest, request);
 			return patchRequest;
 		}
@@ -144,7 +154,9 @@ public class HttpClientStack implements HttpStack {
 		}
 	}
 
-	private static void setEntityIfNonEmptyBody(HttpEntityEnclosingRequestBase httpRequest, Request<?> request) throws AuthFailureError {
+	private static void setEntityIfNonEmptyBody(
+			HttpEntityEnclosingRequestBase httpRequest, Request<?> request)
+			throws AuthFailureError {
 		byte[] body = request.getBody();
 		if (body != null) {
 			HttpEntity entity = new ByteArrayEntity(body);

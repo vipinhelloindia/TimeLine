@@ -6,7 +6,7 @@ The timeline can be fetched here:   https://alpha-api.app.net/stream/0/posts/str
 Component used - 
 
 1 android.support.v4.widget.SwipeRefreshLayout - Pull to Refresh 
-test
+
 2 App compact light theme 
 
 3 GSON with  Date JsonDeserializer to handle date format (yyyy-MM-dd'T'HH:mm:ss'Z')
